@@ -29,6 +29,23 @@ public abstract class Parser<T> {
         return t;
     }
 
+    public final @NotNull T parseOnlyOne(@NotNull ResultSet resultSet) throws SQLException {
+        final T t;
+        try {
+            if (resultSet.next()) t = this.parseRow(resultSet);
+            else throw new SQLException("不应该没有数据！");
+            if (resultSet.next()) throw new SQLException("不应该还有数据！");
+        } catch (SQLException e) {
+            try {
+                resultSet.close();
+            } catch (SQLException ignored) {
+            }
+            throw e;
+        }
+        resultSet.close();
+        return t;
+    }
+
     public final @NotNull List<T> parseAll(@NotNull ResultSet resultSet) throws SQLException {
         final LinkedList<T> list = new LinkedList<>();
         try {
